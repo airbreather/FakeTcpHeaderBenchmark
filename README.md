@@ -6,13 +6,14 @@ I wasn't happy with just what Sasha used in https://app.pluralsight.com/library/
 3. He goes on to implement a custom "generalized" solution in MSIL, but since the training was created, the corefx folks have made something very similar available on NuGet.
 
 # Results
-The methods are as follows:
+The methods are as follows (see the companion `Program.cs` file for their source code):
 
 1. `ReadHeadersBase` should be pretty much identical to Sasha's disaster case.
 2. `ReadHeadersOptimized_StillVirtual` shows what can be done when you relax the alignment requirement while still basically keeping the same features that are present in the framework types.
 3. `ReadHeadersOptimized_NonVirtual` shows the approximate limit of how fast you can go while still keeping separate method calls.
-4. `ReadHeadersOptimized_ManuallyPumpedUnsafe` should be pretty much identical to Sasha's second-best case that uses `unsafe` and `fixed` in the consumer.
-5. `ReadHeadersOptimized_MaximumPower` directly uses `System.Runtime.CompilerServices.Unsafe` to not only meet, but improve on Sasha's best-case generalized solution, most likely thanks to ref returns.
+4. `ReadHeadersOptimized_NonInstance` is no different from `ReadHeadersOptimized_NonVirtual`, but I know someone's going to be concerned about making it an instance method vs. a static method, so I've added a version that uses static methods to avoid the minor allocation and the `this` pointer.
+5. `ReadHeadersOptimized_ManuallyPumpedUnsafe` should be pretty much identical to Sasha's second-best case that uses `unsafe` and `fixed` in the consumer.
+6. `ReadHeadersOptimized_MaximumPower` directly uses `System.Runtime.CompilerServices.Unsafe` to not only meet, but improve on Sasha's best-case generalized solution, most likely thanks to ref returns.
 
 ``` ini
 
@@ -24,10 +25,12 @@ Frequency=3515616 Hz, Resolution=284.4452 ns, Timer=TSC
 
 
 ```
-                                    Method |           Mean |     StdDev | Allocated |
------------------------------------------- |--------------- |----------- |---------- |
-                           ReadHeadersBase | 31,341.9944 us | 18.8121 us |     512 B |
-         ReadHeadersOptimized_StillVirtual | 14,976.2308 us | 43.7374 us |     512 B |
-           ReadHeadersOptimized_NonVirtual |  3,571.2844 us | 14.8595 us |     128 B |
- ReadHeadersOptimized_ManuallyPumpedUnsafe |    508.3331 us |  1.7918 us |       0 B |
-         ReadHeadersOptimized_MaximumPower |     95.4583 us |  0.0165 us |       0 B |
+                                    Method |          Mean |    StdDev | Allocated |
+------------------------------------------ |-------------- |---------- |---------- |
+                           ReadHeadersBase | 3,080.7765 us | 1.3795 us |     384 B |
+         ReadHeadersOptimized_StillVirtual | 1,464.8898 us | 1.1116 us |     128 B |
+           ReadHeadersOptimized_NonVirtual |   351.5746 us | 0.2919 us |      40 B |
+          ReadHeadersOptimized_NonInstance |   348.2700 us | 0.1373 us |       0 B |
+ ReadHeadersOptimized_ManuallyPumpedUnsafe |    57.8784 us | 0.0100 us |       0 B |
+         ReadHeadersOptimized_MaximumPower |    21.1697 us | 0.0106 us |       0 B |
+
