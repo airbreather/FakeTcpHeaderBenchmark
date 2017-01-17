@@ -94,9 +94,9 @@ namespace ConsoleApp3
 
         public BinaryReader3(byte[] buf) => _buf = buf;
 
-        public uint ReadUInt32() => Unsafe.As<byte, uint>(ref _buf[_offset += 4 - 4]);
+        public uint ReadUInt32() => Unsafe.As<byte, uint>(ref _buf[(_offset += 4) - 4]);
 
-        public ushort ReadUInt16() => Unsafe.As<byte, ushort>(ref _buf[_offset += 2 - 2]);
+        public ushort ReadUInt16() => Unsafe.As<byte, ushort>(ref _buf[(_offset += 2) - 2]);
     }
 
     public class Bencher
