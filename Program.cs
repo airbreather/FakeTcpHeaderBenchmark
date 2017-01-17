@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
 
@@ -99,35 +98,22 @@ namespace ConsoleApp3
         public ushort ReadUInt16() => Unsafe.As<byte, ushort>(ref _buf[(_offset += 2) - 2]);
     }
 
+    public static class BinaryReader4
+    {
+        public static uint ReadUInt32(byte[] buf, ref int offset) => Unsafe.As<byte, uint>(ref buf[(offset += 4) - 4]);
+
+        public static ushort ReadUInt16(byte[] buf, ref int offset) => Unsafe.As<byte, ushort>(ref buf[(offset += 2) - 2]);
+    }
+
     public class Bencher
     {
-        const int HeaderCount = 400000;
+        const int HeaderCount = 40000;
 
         static readonly int HeaderSize = Unsafe.SizeOf<TcpHeader>();
 
-        readonly byte[] data;
+        static readonly byte[] data = new byte[HeaderCount * HeaderSize];
 
-        public Bencher()
-        {
-            data = new byte[HeaderCount * HeaderSize];
-            var rand = new Random(Guid.NewGuid().GetHashCode());
-            int i;
-            for (i = 0; i < data.Length - 4; i += 4)
-            {
-                unsafe
-                {
-                    fixed (byte* p = &data[i])
-                    {
-                        *(int*)p = rand.Next();
-                    }
-                }
-            }
-
-            for (; i < data.Length; ++i)
-            {
-                data[i] = (byte)rand.Next(0, 256);
-            }
-        }
+        static Bencher() => new Random(12345).NextBytes(data);
 
         [Benchmark]
         public void ReadHeadersBase()
@@ -183,6 +169,22 @@ namespace ConsoleApp3
         }
 
         [Benchmark]
+        public void ReadHeadersOptimized_NonInstance()
+        {
+            int offset = 0;
+            for (int i = 0; i < HeaderCount; i++)
+            {
+                var header = new TcpHeader();
+                header.SourceIp = BinaryReader4.ReadUInt32(data, ref offset);
+                header.DestinationIp = BinaryReader4.ReadUInt32(data, ref offset);
+                header.SourcePort = BinaryReader4.ReadUInt16(data, ref offset);
+                header.DestinationPort = BinaryReader4.ReadUInt16(data, ref offset);
+                header.Flags = BinaryReader4.ReadUInt32(data, ref offset);
+                header.Checksum = BinaryReader4.ReadUInt32(data, ref offset);
+            }
+        }
+
+        [Benchmark]
         public unsafe void ReadHeadersOptimized_ManuallyPumpedUnsafe()
         {
             for (int i = 0; i < data.Length; i += HeaderSize)
@@ -204,11 +206,8 @@ namespace ConsoleApp3
         }
     }
 
-    class Program
+    static class Program
     {
-        static void Main(string[] args)
-        {
-            BenchmarkRunner.Run<Bencher>();
-        }
+        static void Main(string[] args) => BenchmarkRunner.Run<Bencher>();
     }
 }
