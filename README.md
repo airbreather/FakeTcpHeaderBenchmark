@@ -1,8 +1,8 @@
 # FakeTcpHeaderBenchmark
 I wasn't happy with just what Sasha used in https://app.pluralsight.com/library/courses/making-dotnet-applications-faster for a particular benchmark:
 
-1. The BCL types he used, `System.IO.BinaryReader` and `System.IO.MemoryStream` just aren't optimized for the cases he's interested in here.  Specifically, they're extremely defensive when it comes to reads that are potentially out of alignment, but then he goes to use some stuff that will fail in the cases that the BCL types will fail in.
-2. He also claims that this overhead is due to "method calls", but this is unfair because it's the virtual method calls that really make it bad.
+1. The BCL types he used, `System.IO.BinaryReader` and `System.IO.MemoryStream` just aren't optimized for the cases he's interested in here.  Specifically, they're extremely defensive when it comes to reads that are potentially out of alignment, but then he goes to use some stuff that will fail in those exact cases where the BCL types pay performance penalties to avoid failures.
+2. He also claims that this overhead is due to "method calls", but this is unfair because it's the **virtual** method calls that really make it bad.
 3. He goes on to implement a custom "generalized" solution in MSIL, but since the training was created, the corefx folks have made something very similar available on NuGet.
 
 # Results
