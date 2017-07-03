@@ -25,12 +25,12 @@ Frequency=3515616 Hz, Resolution=284.4452 ns, Timer=TSC
 
 
 ```
-                                    Method |          Mean |    StdDev | Allocated |
------------------------------------------- |-------------- |---------- |---------- |
-                           ReadHeadersBase | 3,080.7765 us | 1.3795 us |     384 B |
-         ReadHeadersOptimized_StillVirtual | 1,464.8898 us | 1.1116 us |     128 B |
-           ReadHeadersOptimized_NonVirtual |   351.5746 us | 0.2919 us |      40 B |
-          ReadHeadersOptimized_NonInstance |   348.2700 us | 0.1373 us |       0 B |
- ReadHeadersOptimized_ManuallyPumpedUnsafe |    57.8784 us | 0.0100 us |       0 B |
-         ReadHeadersOptimized_MaximumPower |    21.1697 us | 0.0106 us |       0 B |
+|                                    Method |          Mean |    StdDev | Allocated |
+|------------------------------------------ |-------------- |---------- |---------- |
+|                           ReadHeadersBase | 3,080.7765 us | 1.3795 us |     384 B |
+|         ReadHeadersOptimized_StillVirtual | 1,464.8898 us | 1.1116 us |     128 B |
+|           ReadHeadersOptimized_NonVirtual |   351.5746 us | 0.2919 us |      40 B |
+|          ReadHeadersOptimized_NonInstance |   348.2700 us | 0.1373 us |       0 B |
+| ReadHeadersOptimized_ManuallyPumpedUnsafe |    57.8784 us | 0.0100 us |       0 B |
+|         ReadHeadersOptimized_MaximumPower |    21.1697 us | 0.0106 us |       0 B |
 
